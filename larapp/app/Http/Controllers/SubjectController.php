@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subject;
+use App\Models\AssignmentType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -40,7 +41,20 @@ class SubjectController extends Controller
             }
         }
 
-        $subjects = $query->orderBy('name')
+        $subjects = $query->withCount([
+            'assignments',
+            'assignments as completed_assignments_count' => function ($query) {
+                $query->where('is_completed', true);
+            },
+            'assignments as pending_assignments_count' => function ($query) {
+                $query->where('is_completed', false);
+            },
+            'assignments as overdue_assignments_count' => function ($query) {
+                $query->where('is_completed', false)
+                    ->where('due_date', '<', now());
+            }
+        ])
+            ->orderBy('name')
             ->paginate(10)
             ->withQueryString();
 
@@ -98,8 +112,33 @@ class SubjectController extends Controller
             abort(403, 'Unauthorized access to this subject.');
         }
 
+        // Get assignments with statistics
+        $assignments = $subject->assignments()
+            ->orderBy('due_date')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate assignment statistics
+        $assignmentStats = [
+            'total' => $assignments->count(),
+            'completed' => $assignments->where('is_completed', true)->count(),
+            'pending' => $assignments->where('is_completed', false)->count(),
+            'overdue' => $assignments->where('is_completed', false)
+                ->where('due_date', '<', now())->count(),
+        ];
+
+        // Get assignment types for this user
+        $assignmentTypes = AssignmentType::where('user_id', auth()->id())
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Subjects/Show', [
             'subject' => $subject,
+            'assignments' => $assignments,
+            'assignmentStats' => $assignmentStats,
+            'assignmentTypes' => $assignmentTypes,
         ]);
     }
 

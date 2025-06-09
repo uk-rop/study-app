@@ -7,24 +7,57 @@ import {
     CardContent,
     Avatar,
     Chip,
-    Paper,
     Stack,
     LinearProgress,
-    Divider
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Alert
 } from '@mui/material';
 import {
-    Person as PersonIcon,
-    Analytics as AnalyticsIcon,
-    Settings as SettingsIcon,
+    School as SchoolIcon,
+    Assignment as AssignmentIcon,
+    CheckCircle as CheckCircleIcon,
+    Schedule as ScheduleIcon,
+    Warning as WarningIcon,
     TrendingUp as TrendingUpIcon,
-    Notifications as NotificationsIcon,
-    Security as SecurityIcon
+    Add as AddIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { Link } from '@inertiajs/react';
 import Layout from '../Layouts/Layout';
 
-export default function MuiDashboard({ auth }) {
+export default function MuiDashboard({ auth, subjects = [], recentAssignments = [], upcomingAssignments = [], stats }) {
     const { t } = useTranslation();
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const isOverdue = (dueDate) => {
+        return new Date(dueDate) < new Date();
+    };
+
+    const getChipColor = (dueDate, isCompleted) => {
+        if (isCompleted) return 'success';
+        if (isOverdue(dueDate)) return 'error';
+        return 'warning';
+    };
+
+    const getChipLabel = (dueDate, isCompleted) => {
+        if (isCompleted) return 'Completed';
+        if (isOverdue(dueDate)) return 'Overdue';
+        return 'Pending';
+    };
 
     return (
         <Layout auth={auth} title={t('dashboard')}>
@@ -39,148 +72,258 @@ export default function MuiDashboard({ auth }) {
                     </Typography>
                 </Box>
 
-                {/* User Info Card */}
-                <Card sx={{ mb: 4 }}>
-                    <CardContent>
-                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems="center">
-                            <Avatar
-                                sx={{
-                                    width: 80,
-                                    height: 80,
-                                    bgcolor: 'primary.main',
-                                    fontSize: '2rem'
-                                }}
-                            >
-                                {auth.user.name.charAt(0).toUpperCase()}
-                            </Avatar>
-                            <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                                <Typography variant="h5" fontWeight={600} gutterBottom>
-                                    {auth.user.name}
-                                </Typography>
-                                <Typography variant="body1" color="text.secondary" gutterBottom>
-                                    {auth.user.email}
-                                </Typography>
-                                <Stack direction="row" spacing={1} sx={{ mt: 1 }} justifyContent={{ xs: 'center', sm: 'flex-start' }}>
-                                    <Chip label="Active User" color="success" size="small" />
-                                    <Chip label="Member" variant="outlined" size="small" />
-                                </Stack>
-                            </Box>
-                        </Stack>
-                    </CardContent>
-                </Card>
-
-                {/* Dashboard Cards */}
+                {/* Statistics Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DashboardCard
-                            icon={<PersonIcon />}
-                            title="Profile"
-                            description="Manage your account settings and personal information"
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatsCard
+                            icon={<SchoolIcon />}
+                            title="Total Subjects"
+                            value={stats?.totalSubjects || 0}
+                            subtitle={`${stats?.activeSubjects || 0} active`}
                             color="primary"
-                            progress={85}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DashboardCard
-                            icon={<AnalyticsIcon />}
-                            title="Analytics"
-                            description="View your activity stats and performance metrics"
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatsCard
+                            icon={<AssignmentIcon />}
+                            title="Total Assignments"
+                            value={stats?.totalAssignments || 0}
+                            subtitle={`${stats?.pendingAssignments || 0} pending`}
+                            color="info"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatsCard
+                            icon={<CheckCircleIcon />}
+                            title="Completed"
+                            value={stats?.completedAssignments || 0}
+                            subtitle={`${Math.round(((stats?.completedAssignments || 0) / (stats?.totalAssignments || 1)) * 100)}% completion rate`}
                             color="success"
-                            progress={72}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DashboardCard
-                            icon={<SettingsIcon />}
-                            title="Settings"
-                            description="Configure your preferences and application settings"
-                            color="secondary"
-                            progress={60}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatsCard
+                            icon={<WarningIcon />}
+                            title="Overdue"
+                            value={stats?.overdueAssignments || 0}
+                            subtitle="Need attention"
+                            color="error"
                         />
                     </Grid>
                 </Grid>
 
-                {/* Activity Overview */}
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={8}>
+                {/* Quick Actions */}
+                <Grid container spacing={3} sx={{ mb: 4 }}>
+                    <Grid item xs={12} sm={6}>
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Recent Activity
+                                    Quick Actions
                                 </Typography>
-                                <Stack spacing={2} sx={{ mt: 2 }}>
-                                    <ActivityItem
-                                        icon={<TrendingUpIcon />}
-                                        title="Profile Updated"
-                                        description="You updated your profile information"
-                                        time="2 hours ago"
-                                        color="success"
-                                    />
-                                    <ActivityItem
-                                        icon={<SecurityIcon />}
-                                        title="Password Changed"
-                                        description="Your password was successfully updated"
-                                        time="1 day ago"
-                                        color="primary"
-                                    />
-                                    <ActivityItem
-                                        icon={<NotificationsIcon />}
-                                        title="Welcome!"
-                                        description="Welcome to your new dashboard"
-                                        time="3 days ago"
-                                        color="secondary"
-                                    />
+                                <Stack spacing={2}>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={<AddIcon />}
+                                        component={Link}
+                                        href="/subjects/create"
+                                        size="large"
+                                    >
+                                        Add New Subject
+                                    </Button>
+                                    <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        startIcon={<SchoolIcon />}
+                                        component={Link}
+                                        href="/subjects"
+                                        size="large"
+                                    >
+                                        View All Subjects
+                                    </Button>
                                 </Stack>
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} sm={6}>
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Quick Stats
+                                    Completion Progress
                                 </Typography>
-                                <Stack spacing={3} sx={{ mt: 2 }}>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                                            Account Completion
-                                        </Typography>
-                                        <LinearProgress
-                                            variant="determinate"
-                                            value={85}
-                                            sx={{ height: 8, borderRadius: 4 }}
-                                        />
-                                        <Typography variant="body2" sx={{ mt: 1 }}>
-                                            85% Complete
-                                        </Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                                            Profile Views
-                                        </Typography>
-                                        <Typography variant="h4" fontWeight={600} color="primary.main">
-                                            1,234
-                                        </Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                                            Last Login
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            Today at 2:30 PM
-                                        </Typography>
-                                    </Box>
-                                </Stack>
+                                <Box sx={{ mt: 3 }}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        Overall Assignment Completion
+                                    </Typography>
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={Math.round(((stats?.completedAssignments || 0) / (stats?.totalAssignments || 1)) * 100)}
+                                        sx={{
+                                            height: 8,
+                                            borderRadius: 4,
+                                            backgroundColor: 'grey.200',
+                                            '& .MuiLinearProgress-bar': {
+                                                backgroundColor: 'success.main'
+                                            }
+                                        }}
+                                    />
+                                    <Typography variant="body2" sx={{ mt: 1 }}>
+                                        {Math.round(((stats?.completedAssignments || 0) / (stats?.totalAssignments || 1)) * 100)}% Complete
+                                    </Typography>
+                                </Box>
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
+
+                {/* Main Content */}
+                <Grid container spacing={3}>
+                    {/* Recent Subjects */}
+                    <Grid item xs={12} md={6}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6" fontWeight={600} gutterBottom>
+                                    Recent Subjects
+                                </Typography>
+                                {subjects.length > 0 ? (
+                                    <Stack spacing={2} sx={{ mt: 2 }}>
+                                        {subjects.map((subject) => (
+                                            <SubjectItem
+                                                key={subject.id}
+                                                subject={subject}
+                                            />
+                                        ))}
+                                        <Button
+                                            variant="text"
+                                            component={Link}
+                                            href="/subjects"
+                                            sx={{ mt: 2 }}
+                                        >
+                                            View All Subjects
+                                        </Button>
+                                    </Stack>
+                                ) : (
+                                    <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.50', mt: 2 }}>
+                                        <SchoolIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                                            No subjects yet
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                            Create your first subject to get started
+                                        </Typography>
+                                        <Button
+                                            variant="contained"
+                                            startIcon={<AddIcon />}
+                                            component={Link}
+                                            href="/subjects/create"
+                                        >
+                                            Create First Subject
+                                        </Button>
+                                    </Paper>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    {/* Upcoming Assignments */}
+                    <Grid item xs={12} md={6}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6" fontWeight={600} gutterBottom>
+                                    Upcoming Assignments
+                                </Typography>
+                                {upcomingAssignments.length > 0 ? (
+                                    <Stack spacing={2} sx={{ mt: 2 }}>
+                                        {upcomingAssignments.map((assignment) => (
+                                            <AssignmentItem
+                                                key={assignment.id}
+                                                assignment={assignment}
+                                                formatDate={formatDate}
+                                                getChipColor={getChipColor}
+                                                getChipLabel={getChipLabel}
+                                            />
+                                        ))}
+                                    </Stack>
+                                ) : (
+                                    <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.50', mt: 2 }}>
+                                        <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                                            No upcoming assignments
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            All caught up! Great work.
+                                        </Typography>
+                                    </Paper>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+
+                {/* Recent Assignments Table */}
+                {recentAssignments.length > 0 && (
+                    <Card sx={{ mt: 3 }}>
+                        <CardContent>
+                            <Typography variant="h6" fontWeight={600} gutterBottom>
+                                Recent Assignments
+                            </Typography>
+                            <TableContainer component={Paper} sx={{ mt: 2 }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Assignment</TableCell>
+                                            <TableCell>Subject</TableCell>
+                                            <TableCell>Due Date</TableCell>
+                                            <TableCell>Status</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {recentAssignments.map((assignment) => (
+                                            <TableRow key={assignment.id} hover>
+                                                <TableCell>
+                                                    <Typography variant="subtitle2" fontWeight={500}>
+                                                        {assignment.name}
+                                                    </Typography>
+                                                    {assignment.description && (
+                                                        <Typography variant="body2" color="text.secondary" noWrap>
+                                                            {assignment.description.substring(0, 60)}
+                                                            {assignment.description.length > 60 && '...'}
+                                                        </Typography>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={assignment.subject?.name}
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant="body2">
+                                                        {formatDate(assignment.due_date)}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={getChipLabel(assignment.due_date, assignment.is_completed)}
+                                                        color={getChipColor(assignment.due_date, assignment.is_completed)}
+                                                        size="small"
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </CardContent>
+                    </Card>
+                )}
             </Box>
         </Layout>
     );
 }
 
-function DashboardCard({ icon, title, description, color = 'primary', progress }) {
+function StatsCard({ icon, title, value, subtitle, color = 'primary' }) {
     return (
         <Card
             sx={{
@@ -205,32 +348,15 @@ function DashboardCard({ icon, title, description, color = 'primary', progress }
                         {icon}
                     </Avatar>
                     <Box>
-                        <Typography variant="h6" fontWeight={600} gutterBottom>
+                        <Typography variant="h4" fontWeight={600} gutterBottom>
+                            {value}
+                        </Typography>
+                        <Typography variant="h6" color="text.primary" gutterBottom>
                             {title}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                            {description}
+                        <Typography variant="body2" color="text.secondary">
+                            {subtitle}
                         </Typography>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                Progress
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={progress}
-                                sx={{
-                                    height: 6,
-                                    borderRadius: 3,
-                                    backgroundColor: `${color}.50`,
-                                    '& .MuiLinearProgress-bar': {
-                                        backgroundColor: `${color}.main`
-                                    }
-                                }}
-                            />
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                                {progress}% Complete
-                            </Typography>
-                        </Box>
                     </Box>
                 </Stack>
             </CardContent>
@@ -238,33 +364,91 @@ function DashboardCard({ icon, title, description, color = 'primary', progress }
     );
 }
 
-function ActivityItem({ icon, title, description, time, color = 'primary' }) {
+function SubjectItem({ subject }) {
+    const completionPercentage = subject.assignments_count > 0
+        ? Math.round((subject.completed_assignments_count / subject.assignments_count) * 100)
+        : 0;
+
+    return (
+        <Card sx={{ p: 2, bgcolor: 'grey.50' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                        {subject.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        {subject.subject_code} • {subject.assignments_count} assignments
+                    </Typography>
+                </Box>
+                <Stack direction="row" spacing={1} alignItems="center">
+                    <Chip
+                        label={subject.is_active ? 'Active' : 'Inactive'}
+                        color={subject.is_active ? 'success' : 'default'}
+                        size="small"
+                    />
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        component={Link}
+                        href={`/subjects/${subject.id}`}
+                    >
+                        View
+                    </Button>
+                </Stack>
+            </Stack>
+            {subject.assignments_count > 0 && (
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="caption" color="text.secondary">
+                        Progress: {subject.completed_assignments_count}/{subject.assignments_count} assignments
+                    </Typography>
+                    <LinearProgress
+                        variant="determinate"
+                        value={completionPercentage}
+                        sx={{
+                            height: 4,
+                            borderRadius: 2,
+                            mt: 0.5
+                        }}
+                    />
+                </Box>
+            )}
+        </Card>
+    );
+}
+
+function AssignmentItem({ assignment, formatDate, getChipColor, getChipLabel }) {
     return (
         <Box>
             <Stack direction="row" spacing={2} alignItems="flex-start">
                 <Avatar
                     sx={{
-                        bgcolor: `${color}.main`,
+                        bgcolor: 'primary.main',
                         color: 'white',
                         width: 40,
                         height: 40
                     }}
                 >
-                    {icon}
+                    <AssignmentIcon />
                 </Avatar>
                 <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="subtitle2" fontWeight={600}>
-                        {title}
+                        {assignment.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        {description}
+                        {assignment.subject?.name}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                        {time}
-                    </Typography>
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
+                        <Typography variant="caption" color="text.secondary">
+                            Due: {formatDate(assignment.due_date)}
+                        </Typography>
+                        <Chip
+                            label={getChipLabel(assignment.due_date, assignment.is_completed)}
+                            color={getChipColor(assignment.due_date, assignment.is_completed)}
+                            size="small"
+                        />
+                    </Stack>
                 </Box>
             </Stack>
-            <Divider sx={{ mt: 2 }} />
         </Box>
     );
 }

@@ -15,7 +15,16 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    IconButton,
+    Tooltip,
+    Paper
 } from '@mui/material';
 import {
     ArrowBack as ArrowBackIcon,
@@ -28,13 +37,20 @@ import {
     Info as InfoIcon,
     ToggleOn as ToggleOnIcon,
     ToggleOff as ToggleOffIcon,
-    NavigateNext as NavigateNextIcon
+    NavigateNext as NavigateNextIcon,
+    Assignment as AssignmentIcon,
+    Add as AddIcon,
+    Visibility as VisibilityIcon,
+    CheckCircle as CheckCircleIcon,
+    RadioButtonUnchecked as RadioButtonUncheckedIcon,
+    CalendarToday as CalendarIcon,
+    TrendingUp as TrendingUpIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import Layout from '../../Layouts/Layout';
 import { useState } from 'react';
 
-export default function SubjectShow({ auth, subject, flash }) {
+export default function SubjectShow({ auth, subject, assignments = [], assignmentStats = {}, assignmentTypes = [], flash }) {
     const { t } = useTranslation();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const { delete: destroy, patch } = useForm();
@@ -82,6 +98,30 @@ export default function SubjectShow({ auth, subject, flash }) {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    // Assignment utility functions
+    const getTypeColor = (typeName) => {
+        const assignmentType = assignmentTypes.find(type => type.name === typeName);
+        return assignmentType ? assignmentType.color : 'default';
+    };
+
+    const getTypeLabel = (typeName) => {
+        const assignmentType = assignmentTypes.find(type => type.name === typeName);
+        return assignmentType ? assignmentType.label : typeName;
+    };
+
+    const isOverdue = (dueDate, isCompleted) => {
+        return !isCompleted && new Date(dueDate) < new Date();
+    };
+
+    const formatAssignmentDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
@@ -253,6 +293,197 @@ export default function SubjectShow({ auth, subject, flash }) {
                                 </Stack>
                             </CardContent>
                         </Card>
+
+                        {/* Assignments Section */}
+                        <Card sx={{ mt: 3 }}>
+                            <CardContent sx={{ p: 4 }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                                    <Typography variant="h5" color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <AssignmentIcon />
+                                        {t('assignments')} ({assignments.length})
+                                    </Typography>
+                                    <Stack direction="row" spacing={2}>
+                                        <Button
+                                            variant="outlined"
+                                            startIcon={<AssignmentIcon />}
+                                            component={Link}
+                                            href={`/subjects/${subject.id}/assignments`}
+                                        >
+                                            {t('viewAllAssignments')}
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            startIcon={<AddIcon />}
+                                            component={Link}
+                                            href={`/subjects/${subject.id}/assignments/create`}
+                                        >
+                                            {t('addAssignment')}
+                                        </Button>
+                                    </Stack>
+                                </Box>
+
+                                {/* Assignment Statistics */}
+                                <Grid container spacing={2} sx={{ mb: 3 }}>
+                                    <Grid item xs={6} sm={3}>
+                                        <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.50' }}>
+                                            <Typography variant="h4" color="primary" fontWeight="bold">
+                                                {assignmentStats.total || 0}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t('totalAssignments')}
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid item xs={6} sm={3}>
+                                        <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'success.50' }}>
+                                            <Typography variant="h4" color="success.main" fontWeight="bold">
+                                                {assignmentStats.completed || 0}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t('completed')}
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid item xs={6} sm={3}>
+                                        <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.50' }}>
+                                            <Typography variant="h4" color="warning.main" fontWeight="bold">
+                                                {assignmentStats.pending || 0}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t('pending')}
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid item xs={6} sm={3}>
+                                        <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'error.50' }}>
+                                            <Typography variant="h4" color="error.main" fontWeight="bold">
+                                                {assignmentStats.overdue || 0}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t('overdue')}
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                </Grid>
+
+                                {/* Recent Assignments */}
+                                {assignments.length > 0 ? (
+                                    <TableContainer component={Paper} variant="outlined">
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>{t('assignment')}</TableCell>
+                                                    <TableCell>{t('type')}</TableCell>
+                                                    <TableCell>{t('dueDate')}</TableCell>
+                                                    <TableCell>{t('status')}</TableCell>
+                                                    <TableCell align="right">{t('actions')}</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {assignments.slice(0, 5).map((assignment) => (
+                                                    <TableRow key={assignment.id} hover>
+                                                        <TableCell>
+                                                            <Box>
+                                                                <Typography variant="subtitle2" fontWeight={500}>
+                                                                    {assignment.name}
+                                                                </Typography>
+                                                                {assignment.description && (
+                                                                    <Typography variant="body2" color="text.secondary" noWrap>
+                                                                        {assignment.description.substring(0, 60)}
+                                                                        {assignment.description.length > 60 && '...'}
+                                                                    </Typography>
+                                                                )}
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Chip
+                                                                label={getTypeLabel(assignment.type)}
+                                                                color={getTypeColor(assignment.type)}
+                                                                size="small"
+                                                                variant="outlined"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                <CalendarIcon fontSize="small" color="action" />
+                                                                <Typography variant="body2">
+                                                                    {formatAssignmentDate(assignment.due_date)}
+                                                                </Typography>
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                                {assignment.is_completed ? (
+                                                                    <Chip
+                                                                        label={t('completed')}
+                                                                        color="success"
+                                                                        size="small"
+                                                                        icon={<CheckCircleIcon />}
+                                                                    />
+                                                                ) : isOverdue(assignment.due_date, assignment.is_completed) ? (
+                                                                    <Chip
+                                                                        label={t('overdue')}
+                                                                        color="error"
+                                                                        size="small"
+                                                                    />
+                                                                ) : (
+                                                                    <Chip
+                                                                        label={t('pending')}
+                                                                        color="warning"
+                                                                        size="small"
+                                                                        icon={<RadioButtonUncheckedIcon />}
+                                                                    />
+                                                                )}
+                                                            </Stack>
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            <Stack direction="row" spacing={1}>
+                                                                <Tooltip title={t('viewAssignment')}>
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        component={Link}
+                                                                        href={`/subjects/${subject.id}/assignments/${assignment.id}`}
+                                                                    >
+                                                                        <VisibilityIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title={t('editAssignment')}>
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        component={Link}
+                                                                        href={`/subjects/${subject.id}/assignments/${assignment.id}/edit`}
+                                                                    >
+                                                                        <EditIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Stack>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                ) : (
+                                    <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'grey.50' }}>
+                                        <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                                            {t('noAssignments')}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                            {t('noAssignmentsDescription')}
+                                        </Typography>
+                                        <Button
+                                            variant="contained"
+                                            startIcon={<AddIcon />}
+                                            component={Link}
+                                            href={`/subjects/${subject.id}/assignments/create`}
+                                        >
+                                            {t('createFirstAssignment')}
+                                        </Button>
+                                    </Paper>
+                                )}
+                            </CardContent>
+                        </Card>
                     </Grid>
 
                     {/* Actions & Metadata */}
@@ -265,6 +496,25 @@ export default function SubjectShow({ auth, subject, flash }) {
                                         {t('quickActions')}
                                     </Typography>
                                     <Stack spacing={2}>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            startIcon={<AssignmentIcon />}
+                                            component={Link}
+                                            href={`/subjects/${subject.id}/assignments`}
+                                        >
+                                            {t('manageAssignments')}
+                                        </Button>
+                                        <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            startIcon={<AddIcon />}
+                                            component={Link}
+                                            href={`/subjects/${subject.id}/assignments/create`}
+                                        >
+                                            {t('addAssignment')}
+                                        </Button>
+                                        <Divider />
                                         <Button
                                             fullWidth
                                             variant="outlined"
@@ -292,6 +542,76 @@ export default function SubjectShow({ auth, subject, flash }) {
                                         >
                                             {t('deleteSubject')}
                                         </Button>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+
+                            {/* Assignment Summary */}
+                            <Card>
+                                <CardContent>
+                                    <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <TrendingUpIcon />
+                                        {t('assignmentProgress')}
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t('totalAssignments')}
+                                            </Typography>
+                                            <Typography variant="h6" fontWeight="bold">
+                                                {assignmentStats.total || 0}
+                                            </Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Typography variant="body2" color="success.main">
+                                                {t('completed')}
+                                            </Typography>
+                                            <Typography variant="h6" color="success.main" fontWeight="bold">
+                                                {assignmentStats.completed || 0}
+                                            </Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Typography variant="body2" color="warning.main">
+                                                {t('pending')}
+                                            </Typography>
+                                            <Typography variant="h6" color="warning.main" fontWeight="bold">
+                                                {assignmentStats.pending || 0}
+                                            </Typography>
+                                        </Box>
+                                        {assignmentStats.overdue > 0 && (
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Typography variant="body2" color="error.main">
+                                                    {t('overdue')}
+                                                </Typography>
+                                                <Typography variant="h6" color="error.main" fontWeight="bold">
+                                                    {assignmentStats.overdue}
+                                                </Typography>
+                                            </Box>
+                                        )}
+                                        {assignmentStats.total > 0 && (
+                                            <Box sx={{ mt: 2 }}>
+                                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                    {t('completionRate')}
+                                                </Typography>
+                                                <Box sx={{
+                                                    width: '100%',
+                                                    height: 8,
+                                                    bgcolor: 'grey.200',
+                                                    borderRadius: 1,
+                                                    overflow: 'hidden'
+                                                }}>
+                                                    <Box sx={{
+                                                        width: `${(assignmentStats.completed / assignmentStats.total) * 100}%`,
+                                                        height: '100%',
+                                                        bgcolor: 'success.main',
+                                                        borderRadius: 1
+                                                    }} />
+                                                </Box>
+                                                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                                                    {Math.round((assignmentStats.completed / assignmentStats.total) * 100)}% {t('complete')}
+                                                </Typography>
+                                            </Box>
+                                        )}
                                     </Stack>
                                 </CardContent>
                             </Card>

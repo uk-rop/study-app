@@ -38,7 +38,11 @@ import {
     ToggleOn as ToggleOnIcon,
     ToggleOff as ToggleOffIcon,
     ViewModule as ViewModuleIcon,
-    ViewList as ViewListIcon
+    ViewList as ViewListIcon,
+    Assignment as AssignmentIcon,
+    CheckCircle as CheckCircleIcon,
+    PendingActions as PendingIcon,
+    Warning as WarningIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import Layout from '../../Layouts/Layout';
@@ -341,7 +345,7 @@ export default function SubjectsIndex({ auth, subjects, filters, flash }) {
                                         </Box>
 
                                         {/* Details - Fixed height section */}
-                                        <Box sx={{ mb: 1.5, height: '72px' }}> {/* Fixed height for details */}
+                                        <Box sx={{ mb: 1.5 }}> {/* Fixed height for details */}
                                             <Stack spacing={0.5}>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     <PersonIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
@@ -363,6 +367,44 @@ export default function SubjectsIndex({ auth, subjects, filters, flash }) {
                                                 </Box>
                                             </Stack>
                                         </Box>
+
+                                        {/* Assignment Statistics */}
+                                        {subject.assignments_count > 0 && (
+                                            <Box sx={{ mb: 1.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                    <AssignmentIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                                                    <Typography variant="body2" fontWeight={600} color="primary.main">
+                                                        {t('assignments')} ({subject.assignments_count})
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                                                    {subject.completed_assignments_count > 0 && (
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <CheckCircleIcon sx={{ fontSize: 14, color: 'success.main' }} />
+                                                            <Typography variant="caption" color="success.main">
+                                                                {subject.completed_assignments_count}
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
+                                                    {subject.pending_assignments_count > 0 && (
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <PendingIcon sx={{ fontSize: 14, color: 'warning.main' }} />
+                                                            <Typography variant="caption" color="warning.main">
+                                                                {subject.pending_assignments_count}
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
+                                                    {subject.overdue_assignments_count > 0 && (
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <WarningIcon sx={{ fontSize: 14, color: 'error.main' }} />
+                                                            <Typography variant="caption" color="error.main">
+                                                                {subject.overdue_assignments_count}
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
+                                                </Box>
+                                            </Box>
+                                        )}
 
                                         {/* Tags - Bottom aligned */}
                                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 'auto' }}>
@@ -441,6 +483,42 @@ export default function SubjectsIndex({ auth, subjects, filters, flash }) {
                                                 </Box>
                                             </Box>
 
+                                            {/* Assignment Statistics */}
+                                            <Box sx={{ minWidth: 120, display: { xs: 'none', lg: 'block' } }}>
+                                                {subject.assignments_count > 0 ? (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <AssignmentIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                                                        <Typography variant="body2" color="primary.main" fontWeight={600}>
+                                                            {subject.assignments_count}
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                                            {subject.completed_assignments_count > 0 && (
+                                                                <Typography variant="caption" color="success.main">
+                                                                    ✓{subject.completed_assignments_count}
+                                                                </Typography>
+                                                            )}
+                                                            {subject.pending_assignments_count > 0 && (
+                                                                <Typography variant="caption" color="warning.main">
+                                                                    ⏳{subject.pending_assignments_count}
+                                                                </Typography>
+                                                            )}
+                                                            {subject.overdue_assignments_count > 0 && (
+                                                                <Typography variant="caption" color="error.main">
+                                                                    ⚠️{subject.overdue_assignments_count}
+                                                                </Typography>
+                                                            )}
+                                                        </Box>
+                                                    </Box>
+                                                ) : (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <AssignmentIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+                                                        <Typography variant="body2" color="text.disabled">
+                                                            {t('noAssignments')}
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+                                            </Box>
+
                                             {/* Tags */}
                                             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                                                 <Chip
@@ -473,9 +551,34 @@ export default function SubjectsIndex({ auth, subjects, filters, flash }) {
                                         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                                             <strong>{t('period')}:</strong> {subject.period_of_study}
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                                             <strong>{t('credits')}:</strong> {subject.credit_hours} {t('creditHours').toLowerCase()}
                                         </Typography>
+                                        {subject.assignments_count > 0 && (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                                                <AssignmentIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                                                <Typography variant="body2" color="primary.main" fontWeight={600}>
+                                                    <strong>{t('assignments')}:</strong> {subject.assignments_count}
+                                                </Typography>
+                                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                                    {subject.completed_assignments_count > 0 && (
+                                                        <Typography variant="caption" color="success.main">
+                                                            ✓{subject.completed_assignments_count}
+                                                        </Typography>
+                                                    )}
+                                                    {subject.pending_assignments_count > 0 && (
+                                                        <Typography variant="caption" color="warning.main">
+                                                            ⏳{subject.pending_assignments_count}
+                                                        </Typography>
+                                                    )}
+                                                    {subject.overdue_assignments_count > 0 && (
+                                                        <Typography variant="caption" color="error.main">
+                                                            ⚠️{subject.overdue_assignments_count}
+                                                        </Typography>
+                                                    )}
+                                                </Box>
+                                            </Box>
+                                        )}
                                     </Box>
                                 </CardContent>
                             </Card>
@@ -545,6 +648,14 @@ export default function SubjectsIndex({ auth, subjects, filters, flash }) {
                     >
                         <ViewIcon sx={{ mr: 1 }} />
                         {t('viewDetails')}
+                    </MenuItem>
+                    <MenuItem
+                        component={Link}
+                        href={`/assignments?subject_id=${selectedSubject?.id}`}
+                        onClick={handleMenuClose}
+                    >
+                        <AssignmentIcon sx={{ mr: 1 }} />
+                        {t('manageAssignments')}
                     </MenuItem>
                     <MenuItem
                         component={Link}

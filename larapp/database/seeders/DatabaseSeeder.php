@@ -20,10 +20,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+        // Seed assignment types (must be after users)
+        $this->call(AssignmentTypeSeeder::class);
+
         // Seed subjects
         $this->call(SubjectSeeder::class);
-        
-        // Seed assignments (must be after subjects)
+
+        // Seed assignments (must be after subjects and assignment types)
         $this->call(AssignmentSeeder::class);
     }
 }

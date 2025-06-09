@@ -44,6 +44,15 @@ class Assignment extends Model
     }
 
     /**
+     * Get the assignment type.
+     */
+    public function assignmentType()
+    {
+        return $this->belongsTo(AssignmentType::class, 'type', 'name')
+            ->where('user_id', $this->user_id);
+    }
+
+    /**
      * Scope to get only completed assignments
      */
     public function scopeCompleted($query)

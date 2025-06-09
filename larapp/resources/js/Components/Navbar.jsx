@@ -28,8 +28,7 @@ import {
     Login,
     PersonAdd,
     Logout,
-    School,
-    Language
+    School
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -85,7 +84,6 @@ export default function MuiNavbar({ auth }) {
 
     const navigationItems = [
         { text: t('home'), href: '/', icon: <Home /> },
-        { text: t('localizationDemo'), href: '/localization-demo', icon: <Language /> },
         ...(auth?.user ? [
             { text: t('dashboard'), href: '/dashboard', icon: <Dashboard /> },
             { text: t('subjects'), href: '/subjects', icon: <School /> }
@@ -96,7 +94,7 @@ export default function MuiNavbar({ auth }) {
         <Box sx={{ width: 250 }} role="presentation">
             <Box sx={{ p: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    Laravel App
+                    {import.meta.env.VITE_APP_NAME || 'Study App'}
                 </Typography>
             </Box>
             <Divider />
@@ -206,7 +204,7 @@ export default function MuiNavbar({ auth }) {
                             mr: 4
                         }}
                     >
-                        Laravel App
+                        {import.meta.env.VITE_APP_NAME || 'Study App'}
                     </Typography>
 
                     {/* Desktop Navigation */}
