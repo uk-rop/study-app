@@ -286,5 +286,34 @@
     "quiz": "Тест",
     "presentation": "Презентація",
     "lab": "Лабораторна робота"
+  },
+
+  "dashboardKeys": {
+    "totalSubjects": "Всього предметів",
+    "totalAssignments": "Всього завдань",
+    "completedAssignments": "Виконано",
+    "overdueAssignments": "Прострочено",
+    "activeSubjects": "активних",
+    "pendingAssignments": "в очікуванні",
+    "completionRate": "рівень виконання",
+    "needAttention": "Потребують уваги",
+    "quickActions": "Швидкі дії",
+    "addNewSubject": "Додати новий предмет",
+    "viewAllSubjects": "Переглянути всі предмети",
+    "completionProgress": "Прогрес виконання",
+    "overallAssignmentCompletion": "Загальне виконання завдань",
+    "complete": "Виконано",
+    "recentSubjects": "Останні предмети",
+    "upcomingAssignments": "Наступні завдання",
+    "recentAssignments": "Останні завдання",
+    "noSubjectsYet": "Поки що немає предметів",
+    "createFirstSubject": "Створіть свій перший предмет, щоб почати",
+    "createFirstSubjectButton": "Створити перший предмет",
+    "noUpcomingAssignments": "Немає наступних завдань",
+    "allCaughtUp": "Все зроблено! Чудова робота.",
+    "assignments": "завдань",
+    "progress": "Прогрес",
+    "view": "Переглянути",
+    "due": "Термін"
   }
 }

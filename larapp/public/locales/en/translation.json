@@ -286,5 +286,34 @@
     "quiz": "Quiz",
     "presentation": "Presentation",
     "lab": "Lab"
+  },
+
+  "dashboardKeys": {
+    "totalSubjects": "Total Subjects",
+    "totalAssignments": "Total Assignments",
+    "completedAssignments": "Completed",
+    "overdueAssignments": "Overdue",
+    "activeSubjects": "active",
+    "pendingAssignments": "pending",
+    "completionRate": "completion rate",
+    "needAttention": "Need attention",
+    "quickActions": "Quick Actions",
+    "addNewSubject": "Add New Subject",
+    "viewAllSubjects": "View All Subjects",
+    "completionProgress": "Completion Progress",
+    "overallAssignmentCompletion": "Overall Assignment Completion",
+    "complete": "Complete",
+    "recentSubjects": "Recent Subjects",
+    "upcomingAssignments": "Upcoming Assignments",
+    "recentAssignments": "Recent Assignments",
+    "noSubjectsYet": "No subjects yet",
+    "createFirstSubject": "Create your first subject to get started",
+    "createFirstSubjectButton": "Create First Subject",
+    "noUpcomingAssignments": "No upcoming assignments",
+    "allCaughtUp": "All caught up! Great work.",
+    "assignments": "assignments",
+    "progress": "Progress",
+    "view": "View",
+    "due": "Due"
   }
 }

@@ -54,9 +54,9 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
     };
 
     const getChipLabel = (dueDate, isCompleted) => {
-        if (isCompleted) return 'Completed';
-        if (isOverdue(dueDate)) return 'Overdue';
-        return 'Pending';
+        if (isCompleted) return t('completed');
+        if (isOverdue(dueDate)) return t('overdue');
+        return t('pending');
     };
 
     return (
@@ -77,36 +77,36 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                     <Grid item xs={12} sm={6} md={3}>
                         <StatsCard
                             icon={<SchoolIcon />}
-                            title="Total Subjects"
+                            title={t('dashboardKeys.totalSubjects')}
                             value={stats?.totalSubjects || 0}
-                            subtitle={`${stats?.activeSubjects || 0} active`}
+                            subtitle={`${stats?.activeSubjects || 0} ${t('dashboardKeys.activeSubjects')}`}
                             color="primary"
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatsCard
                             icon={<AssignmentIcon />}
-                            title="Total Assignments"
+                            title={t('dashboardKeys.totalAssignments')}
                             value={stats?.totalAssignments || 0}
-                            subtitle={`${stats?.pendingAssignments || 0} pending`}
+                            subtitle={`${stats?.pendingAssignments || 0} ${t('dashboardKeys.pendingAssignments')}`}
                             color="info"
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatsCard
                             icon={<CheckCircleIcon />}
-                            title="Completed"
+                            title={t('dashboardKeys.completedAssignments')}
                             value={stats?.completedAssignments || 0}
-                            subtitle={`${Math.round(((stats?.completedAssignments || 0) / (stats?.totalAssignments || 1)) * 100)}% completion rate`}
+                            subtitle={`${Math.round(((stats?.completedAssignments || 0) / (stats?.totalAssignments || 1)) * 100)}% ${t('dashboardKeys.completionRate')}`}
                             color="success"
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatsCard
                             icon={<WarningIcon />}
-                            title="Overdue"
+                            title={t('dashboardKeys.overdueAssignments')}
                             value={stats?.overdueAssignments || 0}
-                            subtitle="Need attention"
+                            subtitle={t('dashboardKeys.needAttention')}
                             color="error"
                         />
                     </Grid>
@@ -118,7 +118,7 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Quick Actions
+                                    {t('dashboardKeys.quickActions')}
                                 </Typography>
                                 <Stack spacing={2}>
                                     <Button
@@ -129,7 +129,7 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                                         href="/subjects/create"
                                         size="large"
                                     >
-                                        Add New Subject
+                                        {t('dashboardKeys.addNewSubject')}
                                     </Button>
                                     <Button
                                         fullWidth
@@ -139,7 +139,7 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                                         href="/subjects"
                                         size="large"
                                     >
-                                        View All Subjects
+                                        {t('dashboardKeys.viewAllSubjects')}
                                     </Button>
                                 </Stack>
                             </CardContent>
@@ -149,11 +149,11 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Completion Progress
+                                    {t('dashboardKeys.completionProgress')}
                                 </Typography>
                                 <Box sx={{ mt: 3 }}>
                                     <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        Overall Assignment Completion
+                                        {t('dashboardKeys.overallAssignmentCompletion')}
                                     </Typography>
                                     <LinearProgress
                                         variant="determinate"
@@ -168,7 +168,7 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                                         }}
                                     />
                                     <Typography variant="body2" sx={{ mt: 1 }}>
-                                        {Math.round(((stats?.completedAssignments || 0) / (stats?.totalAssignments || 1)) * 100)}% Complete
+                                        {Math.round(((stats?.completedAssignments || 0) / (stats?.totalAssignments || 1)) * 100)}% {t('dashboardKeys.complete')}
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -183,7 +183,7 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Recent Subjects
+                                    {t('dashboardKeys.recentSubjects')}
                                 </Typography>
                                 {subjects.length > 0 ? (
                                     <Stack spacing={2} sx={{ mt: 2 }}>
@@ -199,17 +199,17 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                                             href="/subjects"
                                             sx={{ mt: 2 }}
                                         >
-                                            View All Subjects
+                                            {t('dashboardKeys.viewAllSubjects')}
                                         </Button>
                                     </Stack>
                                 ) : (
                                     <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.50', mt: 2 }}>
                                         <SchoolIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
                                         <Typography variant="h6" color="text.secondary" gutterBottom>
-                                            No subjects yet
+                                            {t('dashboardKeys.noSubjectsYet')}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                            Create your first subject to get started
+                                            {t('dashboardKeys.createFirstSubject')}
                                         </Typography>
                                         <Button
                                             variant="contained"
@@ -217,7 +217,7 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                                             component={Link}
                                             href="/subjects/create"
                                         >
-                                            Create First Subject
+                                            {t('dashboardKeys.createFirstSubjectButton')}
                                         </Button>
                                     </Paper>
                                 )}
@@ -230,7 +230,7 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Upcoming Assignments
+                                    {t('dashboardKeys.upcomingAssignments')}
                                 </Typography>
                                 {upcomingAssignments.length > 0 ? (
                                     <Stack spacing={2} sx={{ mt: 2 }}>
@@ -248,10 +248,10 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                                     <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.50', mt: 2 }}>
                                         <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
                                         <Typography variant="h6" color="text.secondary" gutterBottom>
-                                            No upcoming assignments
+                                            {t('dashboardKeys.noUpcomingAssignments')}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            All caught up! Great work.
+                                            {t('dashboardKeys.allCaughtUp')}
                                         </Typography>
                                     </Paper>
                                 )}
@@ -265,16 +265,16 @@ export default function MuiDashboard({ auth, subjects = [], recentAssignments = 
                     <Card sx={{ mt: 3 }}>
                         <CardContent>
                             <Typography variant="h6" fontWeight={600} gutterBottom>
-                                Recent Assignments
+                                {t('dashboardKeys.recentAssignments')}
                             </Typography>
                             <TableContainer component={Paper} sx={{ mt: 2 }}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Assignment</TableCell>
-                                            <TableCell>Subject</TableCell>
-                                            <TableCell>Due Date</TableCell>
-                                            <TableCell>Status</TableCell>
+                                            <TableCell>{t('assignment')}</TableCell>
+                                            <TableCell>{t('subjects')}</TableCell>
+                                            <TableCell>{t('dueDate')}</TableCell>
+                                            <TableCell>{t('status')}</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -365,6 +365,7 @@ function StatsCard({ icon, title, value, subtitle, color = 'primary' }) {
 }
 
 function SubjectItem({ subject }) {
+    const { t } = useTranslation();
     const completionPercentage = subject.assignments_count > 0
         ? Math.round((subject.completed_assignments_count / subject.assignments_count) * 100)
         : 0;
@@ -377,12 +378,12 @@ function SubjectItem({ subject }) {
                         {subject.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        {subject.subject_code} • {subject.assignments_count} assignments
+                        {subject.subject_code} • {subject.assignments_count} {t('dashboardKeys.assignments')}
                     </Typography>
                 </Box>
                 <Stack direction="row" spacing={1} alignItems="center">
                     <Chip
-                        label={subject.is_active ? 'Active' : 'Inactive'}
+                        label={subject.is_active ? t('active') : t('inactive')}
                         color={subject.is_active ? 'success' : 'default'}
                         size="small"
                     />
@@ -392,14 +393,14 @@ function SubjectItem({ subject }) {
                         component={Link}
                         href={`/subjects/${subject.id}`}
                     >
-                        View
+                        {t('dashboardKeys.view')}
                     </Button>
                 </Stack>
             </Stack>
             {subject.assignments_count > 0 && (
                 <Box sx={{ mt: 2 }}>
                     <Typography variant="caption" color="text.secondary">
-                        Progress: {subject.completed_assignments_count}/{subject.assignments_count} assignments
+                        {t('dashboardKeys.progress')}: {subject.completed_assignments_count}/{subject.assignments_count} {t('dashboardKeys.assignments')}
                     </Typography>
                     <LinearProgress
                         variant="determinate"
@@ -417,6 +418,8 @@ function SubjectItem({ subject }) {
 }
 
 function AssignmentItem({ assignment, formatDate, getChipColor, getChipLabel }) {
+    const { t } = useTranslation();
+
     return (
         <Box>
             <Stack direction="row" spacing={2} alignItems="flex-start">
@@ -439,7 +442,7 @@ function AssignmentItem({ assignment, formatDate, getChipColor, getChipLabel }) 
                     </Typography>
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
                         <Typography variant="caption" color="text.secondary">
-                            Due: {formatDate(assignment.due_date)}
+                            {t('dashboardKeys.due')}: {formatDate(assignment.due_date)}
                         </Typography>
                         <Chip
                             label={getChipLabel(assignment.due_date, assignment.is_completed)}
